@@ -130,14 +130,14 @@ Step 3 | /bus-line/bus-stop/{busStopId}/time | This should calculate the bus arr
 
 Value | Type | Example
 ------------- | ------------- | -------------
-busLineId  | uint32 | "busline-Id": 44481
+busLineId  | string | "busline-Id": "44481"
 busLineName  | string | "busLineName": "Campus WeekEnd Rider Brown"
 busLineShortName | string | "busLineShortName": "Brown"
 
 ## Sample response
 ```
 {
-	"busline-Id": 44481,
+	  "busline-Id": "44481",
     "busLineName": "Campus WeekEnd Rider Brown",
     "busLineShortName": "Brown"
 }
@@ -149,8 +149,8 @@ busLineShortName | string | "busLineShortName": "Brown"
 Value | Type | Example
 ------------- | ------------- | -------------
 busStops  | Array | "busStops": [{busStopDetails}]
-{busStopDetails}| "Id": uint32,<br/> "lat": float64,<br/> "lng":float64,<br/> "busStopName": string |   {<br/>"Id": "377906",<br/>"lat": 1.33781,<br/>"lng": 103.69739,<br/>"busStopName": "Pioneer MRT Station Exit B at Blk 649A"<br/>}
-busPath | Array | "busPath": [{coordinates}]
+{busStopDetails}| "Id": string,<br/> "lat": float64,<br/> "lng":float64,<br/> "busStopName": string |   {<br/>"Id": "377906",<br/>"lat": 1.33781,<br/>"lng": 103.69739,<br/>"busStopName": "Pioneer MRT Station Exit B at Blk 649A"<br/>}
+busPaths | Array | "busPaths": [{coordinates}]
 coordinates | "lat": float64,<br/> "lng":float64<br/>| {<br/>"lat": 1.33771, "lng": 103.69735<br/>}
 busLocations | Array | "busLocations":[{busDetails}]
 busDetails | "bearing": int16, <br/> "lat": float64,<br/> "lng":float64,<br/> "crowdLevel": string, <br/>"vehiclePlate": string | {<br/>"bearing": 96,<br/>"crowdLevel": "crowd",<br/>"lat": 1.339872,<br/>"lng": 103.681278,<br/>"vehiclePlate": "PD678J"<br/>}
@@ -179,7 +179,7 @@ busDetails | "bearing": int16, <br/> "lat": float64,<br/> "lng":float64,<br/> "c
           "busStopName": "Canteen 2"
         }
     ],
-    "busPath":[
+    "busPaths":[
         {  
           "lat": 1.33771,
           "lng": 103.69735
@@ -247,24 +247,28 @@ busDetails  | "arrivalTime": Duration, "vehiclePlate": string | {"arrivalTime": 
 }
 ```
 # Reasons
-I build this system assuming that the client flow is how i draw on the diagram above.
+I build this system assuming that the client flow is how i draw on the diagram above. Most likely, i would have 3 data models.
 
-## API: /bus-lines
+1st one data model would be called busline where i would store the busLineId, busLineName and busLineShortName. Assuming that the buslines won't change, I will seed the data by calling the external API.
+2nd model would be called busLineDetails. This model will contain the busStops, busPath, busLocations and busDetails. Assuming that the busStops, busPaths won't change, i will seed the data for this 2 whereas for busLocations and busDetails, i will have to be dependent on the external API.
+3rd model would be called busArrivalDetails. This model will contain arrivalTime and vehiclePlate. Calculation will be done in this API. 
+
+## GET: /bus-lines
 
 When the user landed on the landing page, user will see a list of bus-lines buttons. In order to get this list of bus-lines, the follow API is designed:
 
-- **/bus-lines** will give the client a list of bus lines that are avaliable. In this API, it will also check if there is a new busline and inform the client to update the main page accordingly.
+- **/bus-lines** will give the client a list of bus lines that are avaliable. This API will query the database for the latest buslines routes.
 
 ## pros:
 
 - Simple and straight forward, allow frontend engineers to get the list of avaliable busline
-- This API caters also for long term plan where we will never know when will there be a new busline created.
+- Does not rely on external API too much. Much more stability
 
 ## cons:
 
-- It very dependent of external API. Let say if the external APi is down or rate limited, i am unable to get the new set of busline list.
+- The above is assuming that the busLines wouldn't change. Let say if the busLines changes or there is an additional busLines, i would have to call the external API and seed the data again.
 ---
-## API: /bus-lines/{busLineId}
+## GET: /bus-lines/{busLineId}
 
 After user see the list of buslines, user will click on the button, by clicking on the button, client will call the following API:
 
@@ -280,7 +284,7 @@ https://test.uwave.sg/busPositions/" + busLineId to get the details such as loca
 
 ---
 
-## API: /bus-line/bus-stop/{busStopId}/time
+## GET: /bus-line/bus-stop/{busStopId}/time
 
 After user see the locations of bus, bus stops and routes. User is able to select the bus stop for the line that he chose. After that, this API would be called.
 
@@ -289,3 +293,8 @@ https://test.uwave.sg/busPositions/" + busLineId to get the details such as loca
 
 ## cons:
 - This API is very dependent on the external API to get the actual location and details of the bus.
+
+
+## POST: /seed-bus-lines
+
+This API will only be called when we know that there is a new busLine. Assuming that there will only be adittional bus Routes, when this API is called, they will delete the previous records and create the new set of busLines. This API also can be called if the DB does not contain any busLines.

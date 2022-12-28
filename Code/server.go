@@ -30,7 +30,9 @@ func main() {
 	app := fiber.New() // initalize new fiber app
 	port := os.Getenv("PORT")
 	app.Post("/seed-bus-lines", controller.SeedData)
+	app.Post("/seed-bus-lines-details", controller.SeedBusLineDetailsData)
 	app.Get("/bus-lines", controller.GetBusLines)
+	app.Get("/bus-lines-details/:busLineId", controller.GetBusLinesDetails)
 	app.Listen(port)
 
 }

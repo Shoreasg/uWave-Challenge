@@ -42,7 +42,7 @@ func SeedData(c *fiber.Ctx) error {
 		var response busLinesResponse
 		if err := json.Unmarshal(body, &response); err != nil {
 			fmt.Println("Error unmarshalling JSON data:", err)
-			return c.Status(500).SendString("Error unmarshalling JSON data")
+			return c.Status(500).JSON(fiber.Map{"Error": "Error unmarshalling JSON data"})
 		}
 
 		var busLines []models.BusLines
@@ -55,9 +55,9 @@ func SeedData(c *fiber.Ctx) error {
 			})
 		}
 
-		for i := 0; i < len(busLines); i++ {
-			if err := mgm.Coll(&busLines[i]).Create(&busLines[i]); err != nil {
-				return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		for _, busLines := range busLines {
+			if err := mgm.Coll(&busLines).Create(&busLines); err != nil {
+				return c.Status(500).JSON(fiber.Map{"Error": err.Error()})
 			}
 		}
 
@@ -82,7 +82,7 @@ func SeedData(c *fiber.Ctx) error {
 		var response busLinesResponse
 		if err := json.Unmarshal(body, &response); err != nil {
 			fmt.Println("Error unmarshalling JSON data:", err)
-			return c.Status(500).SendString("Error unmarshalling JSON data")
+			return c.Status(500).JSON(fiber.Map{"Error": "Error unmarshalling JSON data"})
 		}
 
 		var busLines []models.BusLines
@@ -99,8 +99,8 @@ func SeedData(c *fiber.Ctx) error {
 				return c.Status(500).SendString(err.Error())
 			}
 
-			for i := 0; i < len(busLines); i++ {
-				if err := mgm.Coll(&busLines[i]).Create(&busLines[i]); err != nil {
+			for _, busLines := range busLines {
+				if err := mgm.Coll(&busLines).Create(&busLines); err != nil {
 					return c.Status(500).SendString(err.Error())
 				}
 			}
@@ -118,5 +118,5 @@ func GetBusLines(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 
-	return c.JSON(fiber.Map{"success": busLines})
+	return c.JSON(fiber.Map{"Data": busLines})
 }

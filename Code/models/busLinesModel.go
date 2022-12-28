@@ -4,7 +4,7 @@ import "github.com/kamva/mgm/v3"
 
 type BusLines struct {
 	mgm.DefaultModel `bson:",inline"`
-	BusLineId        string `json:"id" bson:"id"`
-	BusLineName      string `json:"fullName" bson:"fullName"`
-	BusLineShortName string `json:"shortName" bson:"shortName"`
+	BusLineId        string `json:"busLineId" bson:"busLineId"`
+	BusLineName      string `json:"busLineName" bson:"busLineName"`
+	BusLineShortName string `json:"busLineShortName" bson:"busLineShortName"`
 }
