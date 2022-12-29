@@ -6,15 +6,16 @@ import (
 
 	"github.com/Shoreasg/uWave-Challenge/controller"
 	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
 	"github.com/kamva/mgm/v3"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
-	// loadEnv := godotenv.Load() //try to load env file
-	// if loadEnv != nil {        //if loading fail, exit the app
-	// 	panic("Error loading .env file")
-	// }
+	loadEnv := godotenv.Load() //try to load env file
+	if loadEnv != nil {        //if loading fail, exit the app
+		panic("Error loading .env file")
+	}
 	mongoUri := os.Getenv("MONGO_URI")
 	//connect to DB instance
 
