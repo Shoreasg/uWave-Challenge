@@ -288,8 +288,7 @@ https://test.uwave.sg/busPositions/" + busLineId to get the details such as loca
 
 After user see the locations of bus, bus stops and routes. User is able to select the bus stop for the line that he chose. After that, this API would be called.
 
-- **/bus-line/bus-stop/{busStopId}/time** client will have to send the busStop Id in the GET request URL. From there, we will query our db for the location of the bus stop. In this API, we will also call 
-https://test.uwave.sg/busPositions/" + busLineId to get the details such as locations and plate of the bus avaliable for that bus line. Then, we will calculate the arrival time and return the client and vehiclePlate
+- **/bus-line/{busLineId}/bus-stop/{busStopId}/time** client will have to send the busStop Id and busLineId in the GET request URL. We will then call /bus-lines/{busLineId} and then calculate the arrival time. We will also store the arrival time in DB so that in the future we can use the history and estimate better arrival time.
 
 ## cons:
 - This API is very dependent on the external API to get the actual location and details of the bus.
@@ -298,3 +297,18 @@ https://test.uwave.sg/busPositions/" + busLineId to get the details such as loca
 ## POST: /seed-bus-lines
 
 This API will only be called when we know that there is a new busLine. Assuming that there will only be adittional bus Routes, when this API is called, they will delete the previous records and create the new set of busLines. This API also can be called if the DB does not contain any busLines.
+
+## POST: /seed-bus-lines-details
+
+This API will only be called when we know that there is a new busPath, busline and busStops. Assuming that there will only be additional data, we will only see the new data in
+
+
+# Conclusion
+
+Overall, this project is the first time i used Golang as a language to create backend. Have to depend on online resources to figure out the syntax. In order to get the arrival time, i use Haversine formula to calculate the distance between the bus stop and the bus location. I also assume that all NTU buses are going at a maximum 50km/hr. From there, i calculate the time needed to reach the bus stop. The con of doing this is that i am assuming the speed, which will resulted in the inaccuracy of time estimation. However, i store these data into the db so that in the future, we can roughly estimate accurate result. Also, let say if the external api is down in the future, i can also use the DB past results to come out with an estimation of the arrival time. Overall, i feel that by having a DB, i can store the neccessary data needed and not really rely on API. I still feel that relying on API for live data is very important so that we can provide accurate result.
+
+This project, i chose Fiber because i feel that fiber is a bit similar like express.js which i am familair with. I also use MGM package as they act like mongoose where i can query my DB better.
+
+Some better improvements which i feel i can do is to use cache queries. Let's say if the user call the same api, we should cache the result and send the result to the client.
+
+One flaw that i have with my API is that i cannot determine if the bus is actually leaving or arriving at the bus stop. So if the distance between the bus stop and bus is less than 900 m and greater than 0, i will tell client that it's arriving. That might be a chance that the bus is actually leaving from the bus stop. Ways to counter this is to store the previous distance measurement in the database and there from there compare if the current distance has increase or decrease, from there, we can tell if the bus is moving towards or furter from the bus stop.
