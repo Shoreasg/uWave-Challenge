@@ -312,3 +312,10 @@ This project, i chose Fiber because i feel that fiber is a bit similar like expr
 Some better improvements which i feel i can do is to use cache queries. Let's say if the user call the same api, we should cache the result and send the result to the client.
 
 One flaw that i have with my API is that i cannot determine if the bus is actually leaving or arriving at the bus stop. So if the distance between the bus stop and bus is less than 900 m and greater than 0, i will tell client that it's arriving. That might be a chance that the bus is actually leaving from the bus stop. Ways to counter this is to store the previous distance measurement in the database and there from there compare if the current distance has increase or decrease, from there, we can tell if the bus is moving towards or furter from the bus stop.
+
+
+# How to run this project
+```
+go get -u
+go run server.go
+```

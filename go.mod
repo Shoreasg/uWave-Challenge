@@ -3,6 +3,7 @@ module github.com/Shoreasg/uWave-Challenge
 go 1.19
 
 require (
+	github.com/alouche/go-geolib v0.0.0-20170422074345-c36016108f6c
 	github.com/gofiber/fiber/v2 v2.40.1
 	github.com/joho/godotenv v1.4.0
 	github.com/kamva/mgm/v3 v3.5.0
@@ -10,7 +11,6 @@ require (
 )
 
 require (
-	github.com/alouche/go-geolib v0.0.0-20170422074345-c36016108f6c // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
