@@ -12,10 +12,7 @@ import (
 )
 
 func main() {
-	loadEnv := godotenv.Load() //try to load env file
-	if loadEnv != nil {        //if loading fail, exit the app
-		panic("Error loading .env file")
-	}
+
 	mongoUri := os.Getenv("MONGO_URI")
 	//connect to DB instance
 
