@@ -68,10 +68,13 @@ func CalculateArrivalTime(c *fiber.Ctx) error {
 
 		//convert it to mins and seconds
 		arrivalTimeString := arrivalDuration.String()
+		if distance > 0 && distance < 0.9 {
+			arrivalTimes = append(arrivalTimes, "arriving")
+		} else {
+			arrivalTimes = append(arrivalTimes, arrivalTimeString)
+		}
 
 		//append the arrival times into the slice and also append the distance between to the slice
-
-		arrivalTimes = append(arrivalTimes, arrivalTimeString)
 		distanceBetweenBusAndBusStopString := fmt.Sprintf("%v km", roundedDistance)
 		distanceBetweenBusAndBusStop = append(distanceBetweenBusAndBusStop, distanceBetweenBusAndBusStopString)
 	}
