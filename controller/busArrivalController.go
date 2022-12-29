@@ -105,5 +105,5 @@ func CalculateArrivalTime(c *fiber.Ctx) error {
 	}
 
 	// Return the calculated arrival times
-	return c.JSON(fiber.Map{"data": busArrivalDetails})
+	return c.JSON(fiber.Map{"busArrivalDetails": busArrivalDetails})
 }

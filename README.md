@@ -124,7 +124,7 @@ Steps  | API needed | Descriptions
 ------------- | ------------- | -------------
 Step 1  | /bus-lines | This should return a list of avaliable bus-lines. Asssuming that there might be a chance that a new busline might be created, this api is needed
 Step 2 | /bus-lines/{busLineId} | This should return full route information, bus stops and location of buses and crowd level
-Step 3 | /bus-line/bus-stop/{busStopId}/time | This should calculate the bus arrival time, then return the arrival time of each bus
+Step 3 | /bus-line/{busLineId}/bus-stop/{busStopId}/time| This should calculate the bus arrival time, then return the arrival time of each bus and details such as distance, busStop id and bus plate
 ---
 ## GET /bus-lines
 
@@ -148,6 +148,7 @@ busLineShortName | string | "busLineShortName": "Brown"
 
 Value | Type | Example
 ------------- | ------------- | -------------
+busLineId | string |     "busLineId": "44478"
 busStops  | Array | "busStops": [{busStopDetails}]
 {busStopDetails}| "Id": string,<br/> "lat": float64,<br/> "lng":float64,<br/> "busStopName": string |   {<br/>"Id": "377906",<br/>"lat": 1.33781,<br/>"lng": 103.69739,<br/>"busStopName": "Pioneer MRT Station Exit B at Blk 649A"<br/>}
 busPaths | Array | "busPaths": [{coordinates}]
@@ -159,6 +160,8 @@ busDetails | "bearing": float64, <br/> "lat": float64,<br/> "lng":float64,<br/> 
 ## Sample response
 ```
 {
+  busLinesDetails: [
+  "busLineId": "44478",
 	"busStops": [  
         {
           "Id": "377906",
@@ -216,10 +219,11 @@ busDetails | "bearing": float64, <br/> "lat": float64,<br/> "lng":float64,<br/> 
         "vehiclePlate": "PD648X"
         }
     ]
+  ]
 }
 ```
 ---
-## GET /bus-line/bus-stop/{busStopId}/time
+## GET /bus-line/{busLineId}/bus-stop/{busStopId}/time
 
 Value | Type | Example
 ------------- | ------------- | -------------
@@ -230,19 +234,27 @@ busDetails  | "arrivalTime": Duration, "vehiclePlate": string | {"arrivalTime": 
 ```
 {
 	busArrivalDetails: [
-        {
-            "arrivalTime": 10mins, 
-            "vehiclePlate": "PD678J"
-        },
-        {
-            "arrivalTime": 20mins, 
-            "vehiclePlate": "PC2840Z"
-        }
-        ,
-        {
-            "arrivalTime": 30mins, 
-            "vehiclePlate": "PD648X"
-        }
+    {
+      "busLineId": "44480",
+      "busStopId": "378237",
+      "distance": "0.46 km",
+      "arrivalTime": "arriving",
+      "vehiclePlate": "PD698B"
+    },
+    {
+      "busLineId": "44480",
+      "busStopId": "378237",
+      "distance": "0.12 km",
+      "arrivalTime": "arriving",
+      "vehiclePlate": "PC3501X"
+    },
+    {
+      "busLineId": "44480",
+      "busStopId": "378237",
+      "distance": "1.58 km",
+      "arrivalTime": "1m53s",
+      "vehiclePlate": "PA9474L"
+    }
     ]
 }
 ```
@@ -250,8 +262,8 @@ busDetails  | "arrivalTime": Duration, "vehiclePlate": string | {"arrivalTime": 
 I build this system assuming that the client flow is how i draw on the diagram above. Most likely, i would have 3 data models.
 
 1st one data model would be called busline where i would store the busLineId, busLineName and busLineShortName. Assuming that the buslines won't change, I will seed the data by calling the external API.
-2nd model would be called busLineDetails. This model will contain the busStops, busPath, busLocations and busDetails. Assuming that the busStops, busPaths won't change, i will seed the data for this 2 whereas for busLocations and busDetails, i will have to be dependent on the external API.
-3rd model would be called busArrivalDetails. This model will contain arrivalTime and vehiclePlate. Calculation will be done in this API. 
+2nd model would be called busLineDetails. This model will contain the busLineID, busStops, busPath, busLocations and busDetails. Assuming that the busStops, busPaths won't change, i will seed the data for this 2 whereas for busLocations and busDetails, i will have to be dependent on the external API.
+3rd model would be called busArrivalDetails. This model will contain arrivalTime,vehiclePlate,busLineId,busStopId and distance. Calculation will be done in this API. 
 
 ## GET: /bus-lines
 

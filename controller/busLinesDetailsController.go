@@ -121,16 +121,6 @@ func GetBusLinesDetails(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"Error": "Error unmarshalling JSON data"})
 	}
 
-	// if there is no buslocation at the time, just send the db document with empty locations which means there isn't bus at that time
-	if len(response.Data) == 0 {
-		var busLineDetails models.BusLinesDetails
-		if err := mgm.Coll(&models.BusLinesDetails{}).FindOne(c.Context(), bson.M{"busLineId": busLineId}).Decode(&busLineDetails); err != nil {
-			return c.Status(500).SendString(err.Error())
-		}
-
-		return c.JSON(fiber.Map{"Data": busLineDetails})
-	}
-
 	// Map the data from the response to the busLocations slice
 	var busLocations []models.BusLocations
 	for _, d := range response.Data {
@@ -155,5 +145,5 @@ func GetBusLinesDetails(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"Error": "Error finding bus line details"})
 	}
 
-	return c.JSON(fiber.Map{"Data": busLineDetails})
+	return c.JSON(fiber.Map{"busLinesDetails": busLineDetails})
 }
