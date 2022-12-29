@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/Shoreasg/uWave-Challenge/models"
 	"github.com/gofiber/fiber/v2"
@@ -29,7 +30,7 @@ type busStopsResponse struct {
 
 type busLocationsResponse struct {
 	Data []struct {
-		Bearing      int16   `json:"bearing"`
+		Bearing      float64 `json:"bearing"`
 		Lat          float64 `json:"lat"`
 		Lng          float64 `json:"lng"`
 		CrowdLevel   string  `json:"crowdLevel"`
@@ -95,6 +96,13 @@ func SeedBusLineDetailsData(c *fiber.Ctx) error {
 
 func GetBusLinesDetails(c *fiber.Ctx) error {
 	busLineId := c.Params("busLineId")
+
+	// Check if user enter a valid busLineId
+	var busLine models.BusLines
+	if err := mgm.Coll(&models.BusLinesDetails{}).First(bson.M{"busLineId": busLineId}, &busLine); err != nil {
+		return c.Status(400).JSON(fiber.Map{"Error": "Invalid busLineId"})
+	}
+
 	// Call the external API to get the data for the specified bus line
 	resp, err := http.Get("https://test.uwave.sg/busPositions/" + busLineId)
 	if err != nil {
@@ -113,11 +121,17 @@ func GetBusLinesDetails(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"Error": "Error unmarshalling JSON data"})
 	}
 
+	// if there is no buslocation at the time, just send the db document with empty locations which means there isn't bus at that time
 	if len(response.Data) == 0 {
-		return c.Status(500).JSON(fiber.Map{"Error": "No bus locations and details are avaliable now"})
+		var busLineDetails models.BusLinesDetails
+		if err := mgm.Coll(&models.BusLinesDetails{}).FindOne(c.Context(), bson.M{"busLineId": busLineId}).Decode(&busLineDetails); err != nil {
+			return c.Status(500).SendString(err.Error())
+		}
+
+		return c.JSON(fiber.Map{"Data": busLineDetails})
 	}
 
-	// Map the data from the response to the BusLocations model
+	// Map the data from the response to the busLocations slice
 	var busLocations []models.BusLocations
 	for _, d := range response.Data {
 		busLocations = append(busLocations, models.BusLocations{
@@ -129,14 +143,17 @@ func GetBusLinesDetails(c *fiber.Ctx) error {
 		})
 	}
 
-	var updatedBusLine models.BusLinesDetails
-	updateResult, err := mgm.Coll(&models.BusLinesDetails{}).UpdateOne(c.Context(), bson.M{"busLineId": busLineId}, bson.M{"$set": bson.M{"busLocations": busLocations}})
+	// update the DB with the latest bus locations and details
+	var busLineDetails models.BusLinesDetails
+	_, err = mgm.Coll(&models.BusLinesDetails{}).UpdateOne(c.Context(), bson.M{"busLineId": busLineId}, bson.M{"$set": bson.M{"busLocations": busLocations, "updated_at": time.Now()}})
 	if err != nil {
-		return c.Status(500).SendString(err.Error())
-	}
-	if updateResult.ModifiedCount == 0 {
-		return c.Status(500).JSON(fiber.Map{"Error": "No documents found with the specified busLineId"})
+		return c.Status(500).JSON(fiber.Map{"Error": "Error updating bus locations"})
 	}
 
-	return c.JSON(updatedBusLine)
+	// use the find function and return the whole document
+	if err := mgm.Coll(&models.BusLinesDetails{}).First(bson.M{"busLineId": busLineId}, &busLineDetails); err != nil {
+		return c.Status(500).JSON(fiber.Map{"Error": "Error finding bus line details"})
+	}
+
+	return c.JSON(fiber.Map{"Data": busLineDetails})
 }

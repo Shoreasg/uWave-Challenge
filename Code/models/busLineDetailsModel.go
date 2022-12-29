@@ -23,7 +23,7 @@ type BusLinePaths struct {
 }
 
 type BusLocations struct {
-	Bearing      int16   `json:"bearing" bson:"bearing"`
+	Bearing      float64 `json:"bearing" bson:"bearing"`
 	Lat          float64 `json:"Lat" bson:"Lat"`
 	Lng          float64 `json:"Lng" bson:"Lng"`
 	CrowdLevel   string  `json:"crowdLevel" bson:"crowdLevel"`

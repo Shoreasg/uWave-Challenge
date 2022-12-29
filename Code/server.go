@@ -33,6 +33,7 @@ func main() {
 	app.Post("/seed-bus-lines-details", controller.SeedBusLineDetailsData)
 	app.Get("/bus-lines", controller.GetBusLines)
 	app.Get("/bus-lines-details/:busLineId", controller.GetBusLinesDetails)
+	app.Get("/bus-line/:busLineId/bus-stop/:busStopId/time", controller.CalculateArrivalTime)
 	app.Listen(port)
 
 }

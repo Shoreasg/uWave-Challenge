@@ -153,7 +153,7 @@ busStops  | Array | "busStops": [{busStopDetails}]
 busPaths | Array | "busPaths": [{coordinates}]
 coordinates | "lat": float64,<br/> "lng":float64<br/>| {<br/>"lat": 1.33771, "lng": 103.69735<br/>}
 busLocations | Array | "busLocations":[{busDetails}]
-busDetails | "bearing": int16, <br/> "lat": float64,<br/> "lng":float64,<br/> "crowdLevel": string, <br/>"vehiclePlate": string | {<br/>"bearing": 96,<br/>"crowdLevel": "crowd",<br/>"lat": 1.339872,<br/>"lng": 103.681278,<br/>"vehiclePlate": "PD678J"<br/>}
+busDetails | "bearing": float64, <br/> "lat": float64,<br/> "lng":float64,<br/> "crowdLevel": string, <br/>"vehiclePlate": string | {<br/>"bearing": 96,<br/>"crowdLevel": "crowd",<br/>"lat": 1.339872,<br/>"lng": 103.681278,<br/>"vehiclePlate": "PD678J"<br/>}
 }
 
 ## Sample response
@@ -284,7 +284,7 @@ https://test.uwave.sg/busPositions/" + busLineId to get the details such as loca
 
 ---
 
-## GET: /bus-line/bus-stop/{busStopId}/time
+## GET: /bus-line/{busLineId}/bus-stop/{busStopId}/time
 
 After user see the locations of bus, bus stops and routes. User is able to select the bus stop for the line that he chose. After that, this API would be called.
 

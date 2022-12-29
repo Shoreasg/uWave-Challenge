@@ -57,7 +57,7 @@ func SeedData(c *fiber.Ctx) error {
 
 		for _, busLines := range busLines {
 			if err := mgm.Coll(&busLines).Create(&busLines); err != nil {
-				return c.Status(500).JSON(fiber.Map{"Error": err.Error()})
+				return c.Status(500).JSON(fiber.Map{"Error": "Error creating new records in DB"})
 			}
 		}
 
@@ -66,7 +66,7 @@ func SeedData(c *fiber.Ctx) error {
 		//check if the number of busLines in DB is lesser than the API, if yes, means there is an additional new busLines. Insert the new data
 		var busLinesInDB []models.BusLines
 		if err := mgm.Coll(&models.BusLines{}).SimpleFind(&busLinesInDB, bson.M{}); err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+			return c.Status(500).JSON(fiber.Map{"Error": "Intenral Server error"})
 		}
 
 		resp, err := http.Get("https://test.uwave.sg/busLines")
@@ -96,12 +96,12 @@ func SeedData(c *fiber.Ctx) error {
 		}
 		if len(busLines) > len(busLinesInDB) {
 			if err := mgm.Coll(&models.BusLines{}).Drop(c.Context()); err != nil {
-				return c.Status(500).SendString(err.Error())
+				return c.Status(500).JSON(fiber.Map{"Error": "Error deleting records in DB"})
 			}
 
 			for _, busLines := range busLines {
 				if err := mgm.Coll(&busLines).Create(&busLines); err != nil {
-					return c.Status(500).SendString(err.Error())
+					return c.Status(500).JSON(fiber.Map{"Error": "Error creating new records in DB"})
 				}
 			}
 			return c.JSON(fiber.Map{"Success": "new data seeded successfully"})
@@ -115,7 +115,7 @@ func SeedData(c *fiber.Ctx) error {
 func GetBusLines(c *fiber.Ctx) error {
 	var busLines []models.BusLines
 	if err := mgm.Coll(&models.BusLines{}).SimpleFind(&busLines, bson.M{}); err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+		return c.Status(500).JSON(fiber.Map{"Error": "Intenral Server error"})
 	}
 
 	return c.JSON(fiber.Map{"Data": busLines})
